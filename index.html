@@ -1,66 +1,87 @@
-<script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
+<html>
 
-<script>
+<head>
+    <title>BLE Temperature Logger</title>
+    <script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
 
-    google.charts.load('current', { packages: ['corechart', 'line'] });
+    <script>
 
-    google.charts.setOnLoadCallback(() => {
-        window.data = new google.visualization.DataTable();
-        data.addColumn('datetime', 'Time');
-        data.addColumn('number', '°C');
+        google.charts.load('current', { packages: ['corechart', 'line'] });
 
-    });
+        google.charts.setOnLoadCallback(() => {
+            window.data = new google.visualization.DataTable();
+            data.addColumn('datetime', 'Time');
+            data.addColumn('number', '°C');
 
-    var options = {
-        hAxis: {
-            format: 'HH:mm:ss',
-            title: 'Time'
-        },
-        vAxis: {
-            title: '°C'
+        });
+
+        var options = {
+            hAxis: {
+                format: 'HH:mm:ss',
+                title: 'Time'
+            },
+            vAxis: {
+                title: '°C'
+            }
+        };
+
+        function ble() {
+            navigator.bluetooth.requestDevice({ filters: [{ name: 'Temperature Sensor' }], optionalServices: ["environmental_sensing"] })
+
+                .then(device => {
+                    return device.gatt.connect();
+                })
+                .then(server => {
+                    return server.getPrimaryService("environmental_sensing");
+                })
+                .then(service => {
+                    return service.getCharacteristic("temperature");
+                })
+                .then(characteristic => characteristic.startNotifications())
+                .then(characteristic => {
+                    characteristic.addEventListener('characteristicvaluechanged',
+                        handleTemperatureChanged);
+                    return characteristic.readValue();
+                })
+                .catch(error => { console.error(error); });
         }
-    };
 
-    function ble() {
-        const historyList = document.getElementById('historyList');
+        function handleTemperatureChanged(event) {
+            let temp = parseInt(event.target.value.getUint16(0, true), 10) / 100;
+            console.log(`Temperature: ${temp}°C`);
 
-        navigator.bluetooth.requestDevice({ filters: [{ name: 'Temperature Sensor' }], optionalServices: ["environmental_sensing"] })
+            document.getElementById('currentValue').innerHTML = `${temp}°C`
 
-            .then(device => {
-                return device.gatt.connect();
-            })
-            .then(server => {
-                return server.getPrimaryService("environmental_sensing");
-            })
-            .then(service => {
-                return service.getCharacteristic("temperature");
-            })
-            .then(characteristic => characteristic.startNotifications())
-            .then(characteristic => {
-                characteristic.addEventListener('characteristicvaluechanged',
-                    handleTemperatureChanged);
-                return characteristic.readValue();
-            })
-            .catch(error => { console.error(error); });
-    }
+            window.data.addRows([[new Date(), temp]]);
 
-    function handleTemperatureChanged(event) {
-        let temp = parseInt(event.target.value.getUint16(0, true), 10) / 100;
-        console.log(`Temperature: ${temp}°C`);
-        historyList.insertBefore(new Option(`${temp}°C`, `${temp}°C`), historyList.firstChild);
+            var chart = new google.visualization.LineChart(document.getElementById('chart_div'));
+            chart.draw(window.data, options);
+        }
+    </script>
+    <style>
+        button {
+            background-color: #4CAF50;
+            /* Green */
+            border: none;
+            color: white;
+            padding: 15px 32px;
+            text-align: center;
+            text-decoration: none;
+            display: inline-block;
+            font-size: 16px;
+        }
+    </style>
+</head>
 
-        window.data.addRows([[new Date(), temp]]);
+<body>
+    <h2>BLE Temperature Logger</h2>
+    <div>
+        <button onclick="ble()">Connect</button>
+    </div>
+    <div id="chart_div"></div>
+    <div id="currentValue">
+    </div>
+</body>
 
-        var chart = new google.visualization.LineChart(document.getElementById('chart_div'));
-        chart.draw(window.data, options);
-    }
-</script>
 
-<button onclick="ble()">Connect</button>
-<br />
-<div id="chart_div"></div>
-
-<br />
-<br />
-<select id="historyList" disabled="true" multiple="true" size="200">
-</select>
+</html>
