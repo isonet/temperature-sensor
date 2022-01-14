@@ -1,0 +1,66 @@
+<script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
+
+<script>
+
+    google.charts.load('current', { packages: ['corechart', 'line'] });
+
+    google.charts.setOnLoadCallback(() => {
+        window.data = new google.visualization.DataTable();
+        data.addColumn('datetime', 'Time');
+        data.addColumn('number', '°C');
+
+    });
+
+    var options = {
+        hAxis: {
+            format: 'HH:mm:ss',
+            title: 'Time'
+        },
+        vAxis: {
+            title: '°C'
+        }
+    };
+
+    function ble() {
+        const historyList = document.getElementById('historyList');
+
+        navigator.bluetooth.requestDevice({ filters: [{ name: 'Temperature Sensor' }], optionalServices: ["environmental_sensing"] })
+
+            .then(device => {
+                return device.gatt.connect();
+            })
+            .then(server => {
+                return server.getPrimaryService("environmental_sensing");
+            })
+            .then(service => {
+                return service.getCharacteristic("temperature");
+            })
+            .then(characteristic => characteristic.startNotifications())
+            .then(characteristic => {
+                characteristic.addEventListener('characteristicvaluechanged',
+                    handleTemperatureChanged);
+                return characteristic.readValue();
+            })
+            .catch(error => { console.error(error); });
+    }
+
+    function handleTemperatureChanged(event) {
+        let temp = parseInt(event.target.value.getUint16(0, true), 10) / 100;
+        console.log(`Temperature: ${temp}°C`);
+        historyList.insertBefore(new Option(`${temp}°C`, `${temp}°C`), historyList.firstChild);
+
+        window.data.addRows([[new Date(), temp]]);
+
+        var chart = new google.visualization.LineChart(document.getElementById('chart_div'));
+        chart.draw(window.data, options);
+    }
+</script>
+
+<button onclick="ble()">Connect</button>
+<br />
+<div id="chart_div"></div>
+
+<br />
+<br />
+<select id="historyList" disabled="true" multiple="true" size="200">
+</select>
