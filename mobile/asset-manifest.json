@@ -1,7 +1,7 @@
 {
   "files": {
     "main.css": "/temperature-sensor/mobile/static/css/main.5880e6c2.css",
-    "main.js": "/temperature-sensor/mobile/static/js/main.0638061b.js",
+    "main.js": "/temperature-sensor/mobile/static/js/main.b2b096db.js",
     "static/js/630.7d7027d5.chunk.js": "/temperature-sensor/mobile/static/js/630.7d7027d5.chunk.js",
     "static/js/738.572b12b8.chunk.js": "/temperature-sensor/mobile/static/js/738.572b12b8.chunk.js",
     "static/js/372.31e4114e.chunk.js": "/temperature-sensor/mobile/static/js/372.31e4114e.chunk.js",
@@ -16,7 +16,7 @@
     "service-worker.js": "/temperature-sensor/mobile/service-worker.js",
     "index.html": "/temperature-sensor/mobile/index.html",
     "main.5880e6c2.css.map": "/temperature-sensor/mobile/static/css/main.5880e6c2.css.map",
-    "main.0638061b.js.map": "/temperature-sensor/mobile/static/js/main.0638061b.js.map",
+    "main.b2b096db.js.map": "/temperature-sensor/mobile/static/js/main.b2b096db.js.map",
     "630.7d7027d5.chunk.js.map": "/temperature-sensor/mobile/static/js/630.7d7027d5.chunk.js.map",
     "738.572b12b8.chunk.js.map": "/temperature-sensor/mobile/static/js/738.572b12b8.chunk.js.map",
     "372.31e4114e.chunk.js.map": "/temperature-sensor/mobile/static/js/372.31e4114e.chunk.js.map",
@@ -31,6 +31,6 @@
   },
   "entrypoints": [
     "static/css/main.5880e6c2.css",
-    "static/js/main.0638061b.js"
+    "static/js/main.b2b096db.js"
   ]
 }
